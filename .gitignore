@@ -1,0 +1,20 @@
+# Virtual Environment
+.venv/
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# OAuth
+credentials/oauth/token_google.json
+credentials/oauth/google_oauth_client.json
+
+# Secrets
+.env

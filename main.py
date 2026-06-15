@@ -17,7 +17,7 @@ def main():
     try:
         client = GoogleClient()
 
-        #run_admin(client)
+        run_admin(client)
         run_docs(client)
         run_gmail(client)
         run_sheets(client)

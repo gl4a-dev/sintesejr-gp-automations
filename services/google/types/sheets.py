@@ -21,6 +21,9 @@ class SheetsSpreadsheetsProtocol(Protocol):
     def values(self) -> SheetsValuesProtocol:
         ...
 
+    def batchUpdate(self, spreadsheetId:str, body:dict[str, Any]) -> SheetsExecuteProtocol:
+        ...
+
 
 class GoogleSheetsServiceProtocol(Protocol):
     def spreadsheets(self) -> SheetsSpreadsheetsProtocol:

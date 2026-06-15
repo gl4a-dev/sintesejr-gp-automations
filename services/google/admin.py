@@ -45,6 +45,48 @@ class GoogleAdminAPI(GoogleService):
     
     @retry_google_api
     def create_user(self, first_name: str, last_name: str, primary_email: str, recovery_email: str, org_unit_path: str = "/") -> CreatedGoogleUser:
+        """
+        Cria um novo usuário no Google Workspace.
+
+        O usuário é criado com uma senha temporária gerada
+        automaticamente e configurado para alterá-la no primeiro login.
+
+        Opcionalmente, é possível definir a unidade organizacional
+        (Organizational Unit) à qual o usuário pertencerá.
+
+        :param first_name:
+            Primeiro nome do usuário.
+            Exemplo: "Ricardo"
+
+        :param last_name:
+            Sobrenome do usuário.
+            Exemplo: "Copertino"
+
+        :param primary_email:
+            Email principal do usuário no Google Workspace.
+            Exemplo: "ricardo.copertino@sintesejr.com.br"
+
+        :param recovery_email:
+            Email de recuperação da conta.
+            Exemplo: "ricardo@usp.br"
+
+        :param org_unit_path:
+            Caminho da unidade organizacional do usuário.
+            Exemplo:
+                "/"
+                "/Membros"
+                "/Diretoria/Tecnologia"
+
+            Se não informado, o usuário é criado na unidade raiz.
+
+        :return:
+            Dados do usuário criado, incluindo a senha temporária
+            gerada automaticamente.
+
+        :raises GoogleAdminError:
+            Se ocorrer erro na API do Google Admin.
+        """
+
         try:
             temporary_password = self._generate_password()
             body = {
@@ -73,6 +115,25 @@ class GoogleAdminAPI(GoogleService):
 
     @retry_google_api
     def list_users(self, max_results: int = 100) -> list[GoogleUser]:
+        """
+        Lista usuários do domínio Google Workspace configurado.
+
+        Os usuários retornados incluem informações como nome,
+        email principal, aliases, status da conta, email USP
+        e data de criação da conta convertida para o fuso horário
+        de São Paulo.
+
+        :param max_results:
+            Quantidade máxima de usuários retornados.
+            Exemplo: 100
+
+        :return:
+            Lista de usuários encontrados no domínio.
+
+        :raises GoogleAdminError:
+            Se ocorrer erro na API do Google Admin.
+        """
+
         try:
             response = self.service.users().list(
                 domain="sintesejr.com.br",

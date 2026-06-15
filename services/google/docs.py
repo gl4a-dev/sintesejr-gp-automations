@@ -37,6 +37,26 @@ class GoogleDocsAPI(GoogleService):
 
     @retry_google_api
     def create_document(self, title:str) -> Document:
+        """
+        Cria um novo documento em branco no Google Docs.
+
+        O documento é criado na raiz do Google Drive autenticado
+        e pode ser posteriormente movido, editado ou exportado.
+
+        :param title:
+            Título atribuído ao documento.
+            Exemplo: "Certificado João Silva"
+
+        :return:
+            Metadados do documento criado.
+
+        :raises ValueError:
+            Se o título estiver vazio.
+
+        :raises GoogleDocsError:
+            Se ocorrer erro na API do Google Docs.
+        """
+
         if not title:
             raise ValueError("title can't be empty")
 
@@ -75,6 +95,26 @@ class GoogleDocsAPI(GoogleService):
 
     @retry_google_api
     def get_document(self, document_id:str) -> Document:
+        """
+        Obtém os metadados de um documento do Google Docs.
+
+        São retornadas informações básicas como identificador,
+        título e URL de edição do documento.
+
+        :param document_id:
+            Identificador do documento.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :return:
+            Metadados do documento solicitado.
+
+        :raises ValueError:
+            Se o identificador do documento estiver vazio.
+
+        :raises GoogleDocsError:
+            Se ocorrer erro na API do Google Docs.
+        """
+
         if not document_id:
             raise ValueError("document_id can't be empty")
 
@@ -109,6 +149,44 @@ class GoogleDocsAPI(GoogleService):
 
     @retry_google_api
     def batch_update(self, document_id:str, requests:list[dict[str, Any]]) -> None:
+        """
+        Executa uma ou mais operações de atualização em um documento
+        do Google Docs utilizando a API batchUpdate.
+
+        Este método funciona como infraestrutura genérica para
+        operações como substituição de texto, inserção de elementos
+        e formatação do documento.
+
+        :param document_id:
+            Identificador do documento a ser atualizado.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param requests:
+            Lista de operações da API do Google Docs.
+            Exemplo:
+            [
+                {
+                    "replaceAllText": {
+                        "containsText": {
+                            "text": "{{NOME}}",
+                            "matchCase": True
+                        },
+                        "replaceText": "João Silva"
+                    }
+                }
+            ]
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se o identificador do documento ou a lista de operações
+            estiver vazia.
+
+        :raises GoogleDocsError:
+            Se ocorrer erro na API do Google Docs.
+        """
+        
         if not document_id:
             raise ValueError("document_id can't be empty")
 
@@ -142,6 +220,37 @@ class GoogleDocsAPI(GoogleService):
             raise GoogleDocsError("Error updating document") from e
 
     def replace_text(self, document_id:str, replacements:dict[str, str]) -> None:
+        """
+        Substitui placeholders ou textos específicos em um documento
+        do Google Docs.
+
+        Este método é especialmente útil para geração de documentos
+        a partir de templates, como certificados, contratos e relatórios.
+
+        :param document_id:
+            Identificador do documento.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param replacements:
+            Mapeamento entre textos a serem substituídos e seus
+            respectivos valores.
+            Exemplo:
+            {
+                "{{NOME}}": "João Silva",
+                "{{CURSO}}": "Python",
+                "{{DATA}}": "15/06/2026"
+            }
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se o dicionário de substituições estiver vazio.
+
+        :raises GoogleDocsError:
+            Se ocorrer erro durante a atualização do documento.
+        """
+
         if not replacements:
             raise ValueError("replacements can't be empty")
 

@@ -38,6 +38,22 @@ class GoogleDriveAPI(GoogleService):
 
     @retry_google_api
     def list_files(self, page_size:int = 10) -> list[DriveFile]:
+        """
+        Lista arquivos disponíveis no Google Drive autenticado.
+
+        Os arquivos retornados incluem metadados básicos como identificador,
+        nome, tipo MIME e link de visualização.
+
+        :param page_size:
+            Quantidade máxima de arquivos retornados.
+            Exemplo: 10
+
+        :return:
+            Lista de arquivos encontrados no Drive.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
 
         try:
             results = (
@@ -79,6 +95,30 @@ class GoogleDriveAPI(GoogleService):
         
     @retry_google_api
     def copy_file(self, file_id:str, new_name:str) -> DriveFile:
+        """
+        Cria uma cópia de um arquivo existente no Google Drive.
+
+        Este método é especialmente útil para trabalhar com templates
+        do Google Docs, Sheets e Slides.
+
+        :param file_id:
+            Identificador do arquivo original.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param new_name:
+            Nome atribuído à cópia criada.
+            Exemplo: "Certificado João Silva"
+
+        :return:
+            Metadados do arquivo copiado.
+
+        :raises ValueError:
+            Se algum parâmetro obrigatório estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
+
         if not file_id:
             raise ValueError("file_id can't be empty")
 
@@ -124,6 +164,29 @@ class GoogleDriveAPI(GoogleService):
         
     @retry_google_api
     def move_file_to_folder(self, file_id:str, folder_id:str) -> None:
+        """
+        Move um arquivo do Google Drive para uma pasta específica.
+
+        O método remove o arquivo de suas pastas atuais e o associa
+        à pasta de destino informada.
+
+        :param file_id:
+            Identificador do arquivo a ser movido.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param folder_id:
+            Identificador da pasta de destino.
+            Exemplo: "0BxxYyyZzzFolder123"
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se algum parâmetro obrigatório estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
 
         if not file_id:
             raise ValueError("file_id can't be empty")
@@ -161,6 +224,33 @@ class GoogleDriveAPI(GoogleService):
         
     @retry_google_api
     def export_file(self, file_id:str, mime_type:str) -> bytes:
+        """
+        Exporta um arquivo do Google Workspace para um formato específico
+        e retorna seu conteúdo em memória.
+
+        Este método é frequentemente utilizado para converter documentos
+        Google Docs em PDF para envio por email ou armazenamento.
+
+        :param file_id:
+            Identificador do arquivo a ser exportado.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param mime_type:
+            Tipo MIME do formato desejado.
+            Exemplos:
+                - "application/pdf"
+                - "text/plain"
+
+        :return:
+            Conteúdo do arquivo exportado em bytes.
+
+        :raises ValueError:
+            Se algum parâmetro obrigatório estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
+
         if not file_id:
             raise ValueError("file_id can't be empty")
 
@@ -202,6 +292,25 @@ class GoogleDriveAPI(GoogleService):
 
     @retry_google_api
     def delete_file(self, file_id:str) -> None:
+        """
+        Exclui permanentemente um arquivo do Google Drive.
+
+        A exclusão é definitiva e o arquivo não é enviado para a lixeira.
+
+        :param file_id:
+            Identificador do arquivo a ser excluído.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se o identificador do arquivo estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
+
         if not file_id:
             raise ValueError("file_id can't be empty")
 
@@ -227,6 +336,26 @@ class GoogleDriveAPI(GoogleService):
             
     @retry_google_api
     def create_folder(self, name: str) -> DriveFile:
+        """
+        Cria uma nova pasta no Google Drive.
+
+        A pasta criada é retornada com seus principais metadados,
+        incluindo link de visualização.
+
+        :param name:
+            Nome da pasta a ser criada.
+            Exemplo: "Certificados 2026"
+
+        :return:
+            Metadados da pasta criada.
+
+        :raises ValueError:
+            Se o nome da pasta estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
+
         if not name:
             raise ValueError("name can't be empty")
 
@@ -270,6 +399,29 @@ class GoogleDriveAPI(GoogleService):
         
     @retry_google_api
     def move_folder_to_folder(self, folder_id: str, parent_folder_id: str) -> None:
+        """
+        Move uma pasta do Google Drive para outra pasta.
+
+        O método remove a pasta de seus diretórios atuais e a associa
+        à pasta de destino informada.
+
+        :param folder_id:
+            Identificador da pasta a ser movida.
+            Exemplo: "0BxxYyyZzzFolder123"
+
+        :param parent_folder_id:
+            Identificador da pasta de destino.
+            Exemplo: "0AaaBbbCccParent456"
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se algum parâmetro obrigatório estiver vazio.
+
+        :raises GoogleDriveError:
+            Se ocorrer erro na API do Google Drive.
+        """
 
         if not folder_id:
             raise ValueError("folder_id can't be empty")

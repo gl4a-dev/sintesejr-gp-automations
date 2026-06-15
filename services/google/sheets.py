@@ -36,6 +36,34 @@ class GoogleSheetsAPI(GoogleService):
 
     @retry_google_api
     def create_spreadsheet(self, title:str, sheet_names:list[str] | None = None) -> Spreadsheet:
+        """
+        Cria uma nova planilha no Google Sheets.
+
+        Opcionalmente, é possível definir os nomes das abas iniciais.
+        Caso nenhuma aba seja informada, o Google criará automaticamente
+        uma aba padrão.
+
+        :param title:
+            Título atribuído à planilha.
+            Exemplo: "Processo Seletivo 2026"
+
+        :param sheet_names:
+            Lista com os nomes das abas a serem criadas.
+            Exemplo:
+                ["Inscrições", "Entrevistas", "Resultados"]
+
+            Se None, uma aba padrão será criada pelo Google.
+
+        :return:
+            Metadados da planilha criada.
+
+        :raises ValueError:
+            Se o título estiver vazio.
+
+        :raises GoogleSheetsError:
+            Se ocorrer erro na API do Google Sheets.
+        """
+
         if not title:
             raise ValueError("title can't be empty")
 
@@ -75,6 +103,27 @@ class GoogleSheetsAPI(GoogleService):
         
     @retry_google_api
     def create_sheet(self, spreadsheet_id: str, title: str) -> None:
+        """
+        Cria uma nova aba em uma planilha existente do Google Sheets.
+
+        :param spreadsheet_id:
+            Identificador da planilha.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param title:
+            Nome da nova aba.
+            Exemplo: "Avaliações"
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se o identificador da planilha ou o título estiverem vazios.
+
+        :raises GoogleSheetsError:
+            Se ocorrer erro na API do Google Sheets.
+        """
+
         if not spreadsheet_id:
             raise ValueError("spreadsheet_id can't be empty")
 
@@ -107,6 +156,40 @@ class GoogleSheetsAPI(GoogleService):
 
     @retry_google_api
     def write_range(self, spreadsheet_id:str, range_name:str, values:list[list[Any]]) -> None:
+        """
+        Escreve valores em um intervalo específico de uma planilha
+        utilizando A1 notation.
+
+        Os valores existentes no intervalo informado serão sobrescritos.
+
+        :param spreadsheet_id:
+            Identificador da planilha.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param range_name:
+            Intervalo no formato A1 notation.
+            Exemplos:
+                - "Avaliações!A1:D10"
+                - "Sheet1!B2:C5"
+
+        :param values:
+            Valores a serem escritos na planilha.
+            Exemplo:
+            [
+                ["Nome", "Setor"],
+                ["Ricardo", "Tecnologia"]
+            ]
+
+        :return:
+            None.
+
+        :raises ValueError:
+            Se algum parâmetro obrigatório estiver vazio.
+
+        :raises GoogleSheetsError:
+            Se ocorrer erro na API do Google Sheets.
+        """
+
         if not spreadsheet_id:
             raise ValueError("spreadsheet_id can't be empty")
 
@@ -143,6 +226,30 @@ class GoogleSheetsAPI(GoogleService):
 
     @retry_google_api
     def read_range( self, spreadsheet_id:str, range_name:str) -> list[list[Any]]:
+        """
+        Lê os valores de um intervalo específico de uma planilha
+        utilizando A1 notation.
+
+        :param spreadsheet_id:
+            Identificador da planilha.
+            Exemplo: "1AbCdEfGhIjKlMnOpQrStUvWxYz"
+
+        :param range_name:
+            Intervalo no formato A1 notation.
+            Exemplos:
+                - "Avaliações!A1:D10"
+                - "Resultados!A2:B20"
+
+        :return:
+            Lista bidimensional contendo os valores encontrados no
+            intervalo solicitado.
+
+        :raises ValueError:
+            Se o identificador da planilha ou o intervalo estiverem vazios.
+
+        :raises GoogleSheetsError:
+            Se ocorrer erro na API do Google Sheets.
+        """
         if not spreadsheet_id:
             raise ValueError("spreadsheet_id can't be empty")
 

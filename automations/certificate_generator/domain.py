@@ -136,44 +136,44 @@ def terminal_certificate_generator():
         print("Membro não confirmado.\nEncerrando o programa.")
         return
     
-    # certificate_copy = client.drive.copy_file(
-    #     file_id=TERMINED_CERTIFICATE_TEMPLATE_DOCS_ID,
-    #     new_name=f"Certificado de Desligamento - {member['Nome']}"
-    # )
-    # client.docs.replace_text(
-    #     document_id=certificate_copy.id,
-    #     replacements={
-    #         "{{NOME}}": member['Nome'],
-    #         "{{CPF}}": member['CPF'],
-    #         "{{HORAS}}": member['Horas Acumuladas'],
-    #         "{{DATA_ENTRADA}}": datetime.strptime(member['Data de Entrada'], "%Y-%m-%d").strftime("%d/%m/%Y"),
-    #         "{{DATA_DESLIGAMENTO}}": datetime.strptime(member['Data de Desligamento'], "%Y-%m-%d").strftime("%d/%m/%Y")
-    #     }
-    # )
-    # certificate_pdf_bytes = client.drive.export_file(
-    #     file_id=certificate_copy.id,
-    #     mime_type="application/pdf"
-    # )
+    certificate_copy = client.drive.copy_file(
+        file_id=TERMINED_CERTIFICATE_TEMPLATE_DOCS_ID,
+        new_name=f"Certificado de Desligamento - {member['Nome']}"
+    )
+    client.docs.replace_text(
+        document_id=certificate_copy.id,
+        replacements={
+            "{{NOME}}": member['Nome'],
+            "{{CPF}}": member['CPF'],
+            "{{HORAS}}": member['Horas Acumuladas'],
+            "{{DATA_ENTRADA}}": datetime.strptime(member['Data de Entrada'], "%Y-%m-%d").strftime("%d/%m/%Y"),
+            "{{DATA_DESLIGAMENTO}}": datetime.strptime(member['Data de Desligamento'], "%Y-%m-%d").strftime("%d/%m/%Y")
+        }
+    )
+    certificate_pdf_bytes = client.drive.export_file(
+        file_id=certificate_copy.id,
+        mime_type="application/pdf"
+    )
 
-    # print("Certificado gerado!")
+    print("Certificado gerado!")
 
-    # client.gmail.send_email(
-    #     to=[member['E-mail']],
-    #     subject="Certificado de Desligamento",
-    #     body=f"<h1>Certificado de Desligamento de {member['Nome']}</h1><p>Segue em anexo seu certificado</p>",
-    #     html=True,
-    #     attachments=[EmailAttachment(
-    #         filename=f"Certificado de Desligamento - {member['Nome']}.pdf",
-    #         content=certificate_pdf_bytes,
-    #         mime_type="application/pdf"
-    #     )]
-    # )
+    client.gmail.send_email(
+        to=[member['E-mail']],
+        subject="Certificado de Desligamento",
+        body=f"<h1>Certificado de Desligamento de {member['Nome']}</h1><p>Segue em anexo seu certificado</p>",
+        html=True,
+        attachments=[EmailAttachment(
+            filename=f"Certificado de Desligamento - {member['Nome']}.pdf",
+            content=certificate_pdf_bytes,
+            mime_type="application/pdf"
+        )]
+    )
 
-    # print("Email enviado com sucesso!")
+    print("Email enviado com sucesso!")
 
-    # client.drive.delete_file(
-    #     file_id=certificate_copy.id
-    # )
+    client.drive.delete_file(
+        file_id=certificate_copy.id
+    )
     
 if __name__ == "__main__":
     terminal_certificate_generator()

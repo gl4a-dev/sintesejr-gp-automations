@@ -1,5 +1,5 @@
 from services.google.client import GoogleClient
-
+from tqdm import tqdm
 
 from automations_config.interview_docs_generator_config import (
     INTERVIEW_TEMPLATE_DOCS_ID,
@@ -7,12 +7,11 @@ from automations_config.interview_docs_generator_config import (
     CURRENT_RECRUITMENT_PROCESS_INTERVIEW_FOLDER_ID
 )
 from automations.utils.list_operations import (
-    convert_matrix_to_list_dict, 
-    sort_list_dicts,
+    convert_matrix_to_list_dict,
     filter_list_dict 
 )
 
-def get_candidates_approved_in_st_stage(client:GoogleClient) -> list[dict]:
+def get_approved_candidates_in_st_stage(client:GoogleClient) -> list[dict]:
     all_candidates_matrix = client.sheets.read_range(
         spreadsheet_id=CANDIDATES_INFORMATION_SPREADSHEET_ID,
         range_name="Report!A:T"
@@ -52,6 +51,21 @@ def get_candidates_approved_in_st_stage(client:GoogleClient) -> list[dict]:
             c["Interesse no Núcleo de Marketing 2"] = "Divergência! Consulte o pipefy ou um membro de GP"
 
     return approved_candidates
+
+def show_approved_candidates(approved_candidates:list[dict]):
+    print("-"*40)
+    print("Membros aprovados na dinâmica:\n")
+    for candidate in approved_candidates:
+        print(f"- {candidate['Nome completo']} - 1ª Opção: {candidate['Primeira opção de setor']}, 2ª Opção: {candidate['Segunda opção de setor']}")
+    print("-"*40)
+
+def ask_for_confirmation() -> bool:
+    confirmation = str(input("Digite 's' para confirmar ou outra para não: "))
+    print(40*"-")
+    if confirmation == 's':
+        return True
+    else:
+        return False
 
 def create_candidate_interview_docs(client:GoogleClient, candidate:dict):
     template_copy = client.drive.copy_file(
@@ -95,9 +109,17 @@ def create_candidate_interview_docs(client:GoogleClient, candidate:dict):
 
 def terminal_interview_docs_generator():
     client = GoogleClient()
-    approved_candidates = get_candidates_approved_in_st_stage(client)
 
-    for candidate in approved_candidates:
+    approved_candidates = get_approved_candidates_in_st_stage(client)
+
+    show_approved_candidates(approved_candidates)
+
+    confirmation = ask_for_confirmation()
+    if confirmation == False:
+        print("Membro não confirmado.\nEncerrando o programa.")
+        return
+
+    for candidate in tqdm(approved_candidates, desc="Criando documentos de entrevistas", total=approved_candidates.__len__()):
         create_candidate_interview_docs(
             client=client,
             candidate=candidate

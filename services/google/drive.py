@@ -135,7 +135,8 @@ class GoogleDriveAPI(GoogleService):
                 .copy(
                     fileId=file_id,
                     body=body,
-                    fields=("id, name, mimeType, webViewLink")
+                    fields=("id, name, mimeType, webViewLink"),
+                    supportsAllDrives=True,
                 )
                 .execute()
             )
@@ -197,7 +198,8 @@ class GoogleDriveAPI(GoogleService):
         try:
             file = self.service.files().get(
                 fileId=file_id,
-                fields="parents"
+                fields="parents",
+                supportsAllDrives=True
             ).execute()
 
             previous_parents = ",".join(file.get("parents", []))
@@ -206,7 +208,8 @@ class GoogleDriveAPI(GoogleService):
                 fileId=file_id,
                 addParents=folder_id,
                 removeParents=previous_parents,
-                fields="id, parents"
+                fields="id, parents",
+                supportsAllDrives=True,
             ).execute()
 
             self.logger.info(

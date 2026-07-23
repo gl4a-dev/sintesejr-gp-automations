@@ -1,11 +1,13 @@
 from datetime import datetime
+from time import sleep
 
 from services.google.client import GoogleClient
 from models.gmail import EmailAttachment
 
 from automations_config.certificate_generator_config import (
     MEMBER_ROLE_MANAGEMENT_SPREADSHEET_ID, 
-    TERMINED_CERTIFICATE_TEMPLATE_DOCS_ID
+    TERMINED_CERTIFICATE_TEMPLATE_DOCS_WITH_CPF_ID,
+    TERMINED_CERTIFICATE_TEMPLATE_DOCS_NO_CPF_ID
 )
 from automations.utils.list_operations import (
     convert_matrix_to_list_dict, 
@@ -136,12 +138,12 @@ def terminal_certificate_generator():
         print("Membro não confirmado.\nEncerrando o programa.")
         return
     
-    certificate_copy = client.drive.copy_file(
-        file_id=TERMINED_CERTIFICATE_TEMPLATE_DOCS_ID,
-        new_name=f"Certificado de Desligamento - {member['Nome']}"
+    certificate_with_cpf_copy = client.drive.copy_file(
+        file_id=TERMINED_CERTIFICATE_TEMPLATE_DOCS_WITH_CPF_ID,
+        new_name=f"Certificado de Conclusão (com CPF) - {member['Nome']}"
     )
     client.docs.replace_text(
-        document_id=certificate_copy.id,
+        document_id=certificate_with_cpf_copy.id,
         replacements={
             "{{NOME}}": member['Nome'],
             "{{CPF}}": member['CPF'],
@@ -150,30 +152,60 @@ def terminal_certificate_generator():
             "{{DATA_DESLIGAMENTO}}": datetime.strptime(member['Data de Desligamento'], "%Y-%m-%d").strftime("%d/%m/%Y")
         }
     )
-    certificate_pdf_bytes = client.drive.export_file(
-        file_id=certificate_copy.id,
+    certificate_with_cpf_pdf_bytes = client.drive.export_file(
+        file_id=certificate_with_cpf_copy.id,
         mime_type="application/pdf"
     )
 
-    print("Certificado gerado!")
+    certificate_no_cpf_copy = client.drive.copy_file(
+        file_id=TERMINED_CERTIFICATE_TEMPLATE_DOCS_NO_CPF_ID,
+        new_name=f"Certificado de Conclusão (sem CPF) - {member['Nome']}"
+    )
+    client.docs.replace_text(
+        document_id=certificate_no_cpf_copy.id,
+        replacements={
+            "{{NOME}}": member['Nome'],
+            "{{HORAS}}": member['Horas Acumuladas'],
+            "{{DATA_ENTRADA}}": datetime.strptime(member['Data de Entrada'], "%Y-%m-%d").strftime("%d/%m/%Y"),
+            "{{DATA_DESLIGAMENTO}}": datetime.strptime(member['Data de Desligamento'], "%Y-%m-%d").strftime("%d/%m/%Y")
+        }
+    )
+    certificate_no_cpf_pdf_bytes = client.drive.export_file(
+        file_id=certificate_no_cpf_copy.id,
+        mime_type="application/pdf"
+    )
+
+    print("Certificados gerados!")
 
     client.gmail.send_email(
         to=[member['E-mail']],
         subject="Certificado de Desligamento",
         body=f"<h1>Certificado de Desligamento de {member['Nome']}</h1><p>Segue em anexo seu certificado</p>",
         html=True,
-        attachments=[EmailAttachment(
-            filename=f"Certificado de Desligamento - {member['Nome']}.pdf",
-            content=certificate_pdf_bytes,
-            mime_type="application/pdf"
-        )]
+        attachments=[
+            EmailAttachment(
+                filename=f"Certificado de Desligamento - {member['Nome']}.pdf",
+                content=certificate_with_cpf_pdf_bytes,
+                mime_type="application/pdf"
+            ),
+            EmailAttachment(
+                filename=f"Certificado de Desligamento (sem CPF) - {member['Nome']}.pdf",
+                content=certificate_no_cpf_pdf_bytes,
+                mime_type="application/pdf"
+            )
+        ]
     )
 
     print("Email enviado com sucesso!")
 
     client.drive.delete_file(
-        file_id=certificate_copy.id
+        file_id=certificate_with_cpf_copy.id
     )
+    client.drive.delete_file(
+        file_id=certificate_no_cpf_copy.id
+    )
+
+    print("Cópias temporárias deletadas!")
     
 if __name__ == "__main__":
     terminal_certificate_generator()

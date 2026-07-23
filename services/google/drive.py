@@ -321,7 +321,8 @@ class GoogleDriveAPI(GoogleService):
             (
                 self.service.files()
                 .delete(
-                    fileId=file_id
+                    fileId=file_id,
+                    supportsAllDrives=True,
                 )
                 .execute()
             )
